@@ -1,15 +1,30 @@
 #include <GL/glut.h>
 #include <stdio.h>
 #include <iostream>
+#include <cstring>
+#include <math.h>
+#define PI 3.14f
 #include "marble.hpp"
+#include "board.hpp"
 
+
+#define TIME_INTERVAL 500
+#define TIME_INTERVAL_LIFE 20
+#define TIMER_ID 1
+#define TIMER_LIFE 2
+#define LIFE_ANIMATION_MAX 2*360
 
 static int gravity_on = 0;
+static int game_start = 0;
+int life_animation = 0;
+
 
 /* Deklaracije callback funkcija. */
 static void on_display(void);
 static void on_keyboard(unsigned char key, int x, int y);
 static void on_reshape(int width, int height);
+void output(char *string);
+//void drawText(const char *text, int length, int x, int y);
 //static void on_keyReleased(unsigned char key , int x , int y);
 static void on_timer(int value);
 
@@ -22,28 +37,28 @@ void end();
 void move(int direction);
 
 MarbleBall* MarbleBall::instance = 0;
+Board* board;
 
-static int window_width, window_height;
+static int window_width = 1500, window_height = 700;
+
 float x=0;
 float y=0;
 float speed=1;
 
-void applyAcc(double amp, int x, int y, int z)
-{
-
-}
 
 int main(int argc, char **argv)
 {
 
+
     MarbleBall* ball = ball->getInstance();
+    board = new Board;
 
     /* Inicijalizuje se GLUT. */
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
     /* Kreira se prozor. */
-    glutInitWindowSize(1500, 700);
+    glutInitWindowSize(window_width, window_height);
     glutInitWindowPosition(100, 100);
     glutCreateWindow(argv[0]);
 
@@ -59,6 +74,7 @@ int main(int argc, char **argv)
     glClearColor(0.75, 0.75, 0.75, 0);
     glEnable(GL_DEPTH_TEST);
 
+    glutTimerFunc(TIME_INTERVAL_LIFE, on_timer, TIMER_LIFE);
     /* Program ulazi u glavnu petlju. */
     glutMainLoop();
 
@@ -79,6 +95,13 @@ static void on_reshape(int width, int height){
 
 
 static void on_keyboard(unsigned char key, int x, int y){
+
+    if(!game_start){
+        std::cout << "t" << std::endl;
+        glutTimerFunc(TIME_INTERVAL, on_timer, TIMER_ID);
+        game_start = 1;
+    }
+
     switch(key){
         case 27:
             exit(0);
@@ -86,27 +109,33 @@ static void on_keyboard(unsigned char key, int x, int y){
         case 'W':
         case 'w':
             MarbleBall::getInstance()->move(FWD);
+            game_start = 1;
             break;
         case 'A':
         case 'a':
             MarbleBall::getInstance()->move(LEFT);
+            game_start = 1;
             break;
         case 'S':
         case 's':
             MarbleBall::getInstance()->move(BACK);
+            game_start = 1;
             break;
         case 'D':
         case 'd':
             MarbleBall::getInstance()->move(RIGHT);
+            game_start = 1;
             break;
         case 'R':
         case 'r':
             {
                 MarbleBall::getInstance()->reset();
+                game_start = 0;
                 break;
             }
-
     }
+
+
 
     glutPostRedisplay();
 }
@@ -115,11 +144,38 @@ static void on_keyboard(unsigned char key, int x, int y){
 
 static void on_timer(int value)
 {
+    //tajmer funkcija
+    if(value == TIMER_ID){
+        MarbleBall::getInstance()->life--;
+        std::cout << MarbleBall::getInstance()->life<< std::endl;
+        if(MarbleBall::getInstance()->life == 0){
+            //TODO game endi
+        }
+        glutPostRedisplay();
+        if(game_start){
+
+            glutTimerFunc(TIME_INTERVAL, on_timer, TIMER_ID);
+        }
+    }
+
+
+    if(value == TIMER_LIFE){
+            if(life_animation < 360){
+                life_animation += 1;
+            }
+            else{
+                life_animation = 0;
+            }
+            glutPostRedisplay();
+            glutTimerFunc(TIME_INTERVAL_LIFE, on_timer, TIMER_LIFE);
+    }
+
 
 }
 
 static void on_display(void)
 {
+
     /* Pozicija svetla (u pitanju je direkcionalno svetlo). */
     GLfloat light_position[] = { 0, 0, 2000, 0 };
 
@@ -143,8 +199,6 @@ static void on_display(void)
 
     /* Koeficijent glatkosti materijala. */
     GLfloat shininess = 20;
-
-
 
 
 
@@ -172,28 +226,26 @@ static void on_display(void)
 
 
     glShadeModel(GL_SMOOTH);
+
+
     MarbleBall::getInstance()->redraw();
 
-    glPushMatrix();
-        glColor3f(1,0,0);
-        glutSolidSphere(10,10,10);
-    glPopMatrix();
+    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
 
-    glPushMatrix();
-        glColor3f(1,0,0);
-        glTranslatef(100,300,0);
-        glutSolidSphere(10,10,10);
-    glPopMatrix();
+    board->draw();
 
 
 
-    glPushMatrix();
-        glColor3f(0.5,0.5,0);
-        glTranslatef(1000,1000,-50);
-        glScaled(2000,2000,1);
-        glutSolidCube(1);
-    glPopMatrix();
+    char life_numb[10];
+    char str_life[] = "Life: ";
+    sprintf(life_numb, "%d", MarbleBall::getInstance()->life);
+    strcat(str_life, life_numb);
 
+
+    // glDisable(GL_LIGHTING);
+	 	output(str_life);
+    // glEnable(GL_LIGHTING);
 
 
 
@@ -202,7 +254,7 @@ static void on_display(void)
 }
 
 void camera(){
-
+    //pozicioniranje kamere
     gluLookAt( MarbleBall::getInstance()->getX(),
               MarbleBall::getInstance()->getY()-600,
               900,
@@ -210,4 +262,37 @@ void camera(){
               MarbleBall::getInstance()->getY(),
               MarbleBall::getInstance()->getZ(),
               0,0,1);
+}
+
+
+
+void output(char *string) {
+	//funkcija ispisuje trenutni zivot u gorenjm levom uglu
+
+	glColor3f( 1.0, 1.0, 1.0 );
+	glMatrixMode( GL_PROJECTION );
+
+	glPushMatrix();
+		glLoadIdentity();
+		gluOrtho2D( 0, window_width, 0, window_height );
+
+		glMatrixMode( GL_MODELVIEW );
+
+		glPushMatrix();
+			glLoadIdentity();
+
+			glRasterPos2i( 10, window_height-10-24 ); // wh - offset - fontsize
+
+			int len = (int)strlen(string);
+			for ( int i = 0; i<len; ++i ) {
+
+				glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, string[i]);
+			}
+		glPopMatrix();
+
+		glMatrixMode( GL_PROJECTION );
+	glPopMatrix();
+
+	glMatrixMode( GL_MODELVIEW );
+
 }
