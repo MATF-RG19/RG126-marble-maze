@@ -10,6 +10,7 @@
 #define RIGHT 4
 #define ACCELERATION 5
 #define MAX_SPEED 100
+#define MARBLE_SIZE 100
 
 class MarbleBall
 {

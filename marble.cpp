@@ -1,12 +1,56 @@
 #include "marble.hpp"
+#include "board.hpp"
+#include <cmath>
+
 #define MARBLEIN 1
 #define MARBLEOUT 2
+
+
 
 void material(int i);
 
 void MarbleBall::redraw(){
+    std::cout << "x: "<< x << " z: " << z << std::endl;
+
+
     glPushMatrix();
-        if (z < -3000){
+
+        if(x < 0){
+            if(x  > -99){
+                x-= 2;
+                z =  sqrt(100*100 - x*x)-100;
+            }
+            else {
+                v_z+=0.3;
+                z -= v_z;
+            }
+        }
+        if(x > BOARD_SIZE ){
+            if( x < BOARD_SIZE+99){
+                x+= 2;
+                z =  sqrt(100*100 - (x-BOARD_SIZE)*(x-BOARD_SIZE))-100;
+            }
+            else z -= 2;
+        }
+
+        if(y < 0){
+            if( y > -99){
+                y-= 2;
+                z =  sqrt(100*100 - y*y)-100;
+            }
+            else z -= 2;
+
+        }
+        if(y > BOARD_SIZE && z > -100){
+            if( y < BOARD_SIZE+99){
+                y+= 2;
+                z =  sqrt(100*100 - (y-BOARD_SIZE)*(y-BOARD_SIZE))-100;
+            }
+            else z -= 2;
+        }
+
+
+        if (z < -1000){
             reset();
         }
         else {
@@ -21,21 +65,21 @@ void MarbleBall::redraw(){
         }
 
             material(MARBLEIN);
-            glutSolidSphere(50,100,100);
+            glutSolidSphere((MARBLE_SIZE/2),100,100);
         glColor3f(0, 1, 0);
-        double life_upper[] = {0,0,1,life/2};
-        double life_downer[] = {0,0,-1,life/2};
+        double life_upper[] = {0,0,1,(double)life/2};
+        double life_downer[] = {0,0,-1,(double)life/2};
         glClipPlane(GL_CLIP_PLANE1, life_upper);
         glClipPlane(GL_CLIP_PLANE2, life_downer);
         glEnable(GL_CLIP_PLANE1);
         glEnable(GL_CLIP_PLANE2);
-            material(2);
-            glutSolidSphere(50.2,100,100);
+            material(MARBLEOUT);
+            glutSolidSphere((MARBLE_SIZE/2)+0.2,100,100);
         glDisable(GL_CLIP_PLANE1);
         glDisable(GL_CLIP_PLANE2);
         glColor3f(1, 1, 1);
 
-            //glutWireSphere(51, 10,10);
+
 
     glPopMatrix();
 }
@@ -129,7 +173,5 @@ void material(int i)
 	glMaterialfv(GL_FRONT,GL_AMBIENT,mat_ambient);
 	glMaterialfv(GL_FRONT,GL_DIFFUSE,mat_diffuse);
 	glMaterialfv(GL_FRONT,GL_SPECULAR,mat_specular);
-
-
 
 }

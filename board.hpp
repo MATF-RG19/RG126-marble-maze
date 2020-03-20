@@ -1,7 +1,6 @@
 #ifndef __BOARD__
 #define __BOARD__
 
-
 #include <GL/glut.h>
 #include <stdio.h>
 #include <iostream>
@@ -9,6 +8,8 @@
 #include <cstdlib>
 #define HOLE_NUM 100
 #define LIFE_NUM 10
+#define BOARD_SIZE 2000
+
 
 class Hole{
 public:
@@ -19,7 +20,6 @@ public:
     ~Hole();
     void draw();
 
-private:
     double x;
     double y;
     double size;
@@ -27,17 +27,16 @@ private:
 };
 
 
-class GetLife
+class LifeToken
 {
 public:
-    GetLife(double x, double y)
+    LifeToken(double x, double y)
     : x(x), y(y)
     {
     }
-    ~GetLife();
+    ~LifeToken();
     void draw();
 
-private:
     double x;
     double y;
 };
@@ -62,7 +61,7 @@ public:
             y = rand()%19;
 
 
-            GetLife *GetL = new GetLife(x*100+75, y*100+75);
+            LifeToken *GetL = new LifeToken(x*100+75, y*100+75);
             lifes.push_back(GetL);
         }
     }
@@ -70,11 +69,17 @@ public:
         for(Hole* v : holes){
             delete v;
         }
+        for(LifeToken* lt : lifes){
+            delete lt;
+        }
     };
     void draw();
+    void lifeMarbleCollision();
+    void holeMarbleCollision();
+
 private:
     std::vector<Hole*> holes;
-    std::vector<GetLife*> lifes;
+    std::vector<LifeToken*> lifes;
 };
 
 

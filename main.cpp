@@ -53,6 +53,8 @@ int main(int argc, char **argv)
     MarbleBall* ball = ball->getInstance();
     board = new Board;
 
+
+
     /* Inicijalizuje se GLUT. */
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
@@ -97,7 +99,6 @@ static void on_reshape(int width, int height){
 static void on_keyboard(unsigned char key, int x, int y){
 
     if(!game_start){
-        std::cout << "t" << std::endl;
         glutTimerFunc(TIME_INTERVAL, on_timer, TIMER_ID);
         game_start = 1;
     }
@@ -229,6 +230,8 @@ static void on_display(void)
 
 
     MarbleBall::getInstance()->redraw();
+    board->lifeMarbleCollision();
+    board->holeMarbleCollision();
 
     glDisable(GL_LIGHTING);
     glDisable(GL_LIGHT0);
