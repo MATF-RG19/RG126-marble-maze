@@ -4,50 +4,17 @@
 
 #define MARBLEIN 1
 #define MARBLEOUT 2
-
-
+#define MARBLEIN_DEATH 3
 
 void material(int i);
 
 void MarbleBall::redraw(){
-    std::cout << "x: "<< x << " z: " << z << std::endl;
-
+    //std::cout << "x: "<< x << " z: " << z << std::endl;
 
     glPushMatrix();
-
-        if(x < 0){
-            if(x  > -99){
-                x-= 2;
-                z =  sqrt(100*100 - x*x)-100;
-            }
-            else {
-                v_z+=0.3;
-                z -= v_z;
-            }
-        }
-        if(x > BOARD_SIZE ){
-            if( x < BOARD_SIZE+99){
-                x+= 2;
-                z =  sqrt(100*100 - (x-BOARD_SIZE)*(x-BOARD_SIZE))-100;
-            }
-            else z -= 2;
-        }
-
-        if(y < 0){
-            if( y > -99){
-                y-= 2;
-                z =  sqrt(100*100 - y*y)-100;
-            }
-            else z -= 2;
-
-        }
-        if(y > BOARD_SIZE && z > -100){
-            if( y < BOARD_SIZE+99){
-                y+= 2;
-                z =  sqrt(100*100 - (y-BOARD_SIZE)*(y-BOARD_SIZE))-100;
-            }
-            else z -= 2;
-        }
+    if(x < 0 || x > BOARD_SIZE || y< 0 || y> BOARD_SIZE){
+        marbleFall();
+    }
 
 
         if (z < -1000){
@@ -64,7 +31,13 @@ void MarbleBall::redraw(){
             glRotatef(-y/5, 1, 0, 0);
         }
 
+        if(death == 0){
             material(MARBLEIN);
+        }
+        else{
+            material(MARBLEIN_DEATH);
+        }
+
             glutSolidSphere((MARBLE_SIZE/2),100,100);
         glColor3f(0, 1, 0);
         double life_upper[] = {0,0,1,(double)life/2};
@@ -165,13 +138,105 @@ void material(int i)
             mat_specular[3] =  0.5;
             shininess=76.8f;
             break;
+        case MARBLEIN_DEATH:
+            shininess=30;
+
+            mat_ambient[0] = 0.17;
+            mat_ambient[1] = 0.01;
+            mat_ambient[2] = 0.01;
+            mat_ambient[3] = 0.55;
+
+            mat_diffuse[0] = 0.61;
+            mat_diffuse[1] = 0.04;
+            mat_diffuse[2] = 0.04;
+            mat_diffuse[3] = 0.55;
+
+            mat_specular[0] = 0.72;
+            mat_specular[1] = 0.62;
+            mat_specular[2] = 0.62;
+            mat_specular[3] =  0.5;
+            shininess=76.8f;
+            break;
     }
-
-
 
 	glMaterialf(GL_FRONT,GL_SHININESS,shininess);
 	glMaterialfv(GL_FRONT,GL_AMBIENT,mat_ambient);
 	glMaterialfv(GL_FRONT,GL_DIFFUSE,mat_diffuse);
 	glMaterialfv(GL_FRONT,GL_SPECULAR,mat_specular);
+}
 
+void MarbleBall::marbleFall(){
+    if(x < 0){
+        if(x  > -99){
+            x-= 2;
+            z =  sqrt(100*100 - x*x)-100;
+        }
+        else {
+            v_z+=0.3;
+            z -= v_z;
+        }
+    }
+    if(x > BOARD_SIZE ){
+        if( x < BOARD_SIZE+99){
+            x+= 2;
+            z =  sqrt(100*100 - (x-BOARD_SIZE)*(x-BOARD_SIZE))-100;
+        }
+        else {
+            v_z+=0.3;
+            z -= v_z;
+        }
+    }
+
+    if(y < 0){
+        if( y > -99){
+            y-= 2;
+            z =  sqrt(100*100 - y*y)-100;
+        }
+        else {
+            v_z+=0.3;
+            z -= v_z;
+        }
+
+    }
+    if(y > BOARD_SIZE ){
+        if( y < BOARD_SIZE+99){
+            y+= 2;
+            z =  sqrt(100*100 - (y-BOARD_SIZE)*(y-BOARD_SIZE))-100;
+        }
+        else{
+            v_z+=0.3;
+            z -= v_z;
+        }
+    }
+    death = 1;
+
+}
+void MarbleBall::fallInHole(double distanceX, double distanceY){
+    std::cout << "x:" << x << " y:"<< y << '\n';
+    double y1;
+    double x1;
+    if(-distanceY < distanceX && distanceX < distanceY){
+        y1=y;
+        y -=1;
+        x += (y-y1)*(distanceX/distanceY);
+    }
+    if(distanceY < distanceX && distanceX < -distanceY){
+        y1=y;
+        y += 1;
+        x += (y-y1)*(distanceX/distanceY);
+    }
+    if(distanceX < distanceY && distanceY < -distanceX){
+        x1=x;
+        x +=1;
+        y += (x-x1)*(distanceY/distanceX);
+    }
+    if(-distanceX < distanceY && distanceY < distanceX){
+        x1=x;
+        x -= 1;
+        y += (x-x1)*(distanceY/distanceX);
+    }
+    std::cout << "x:" << x << " y:"<< y << '\n';
+    std::cout << "dx:" << distanceX << " dy:"<< distanceY << '\n';
+    v_z+=0.1;
+    z -= v_z;
 }

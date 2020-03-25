@@ -26,6 +26,18 @@ public:
 
 };
 
+class FinishPoint{
+public:
+    FinishPoint(double x, double y)
+    : x(x), y(y)
+    {
+    }
+    ~FinishPoint();
+    void draw();
+
+    double x;
+    double y;
+};
 
 class LifeToken
 {
@@ -49,10 +61,14 @@ public:
         int x;
         int y;
         for(int i =0; i < HOLE_NUM; i++){
-            x = rand()%19;
-            y = rand()%19;
+            x = rand()%(BOARD_SIZE/100-1);
+            y = rand()%(BOARD_SIZE/100-1);
 
-            Hole *hole = new Hole(x*100+75, y*100+75, 100);
+            if(x == (BOARD_SIZE/100-1) &&  y == (BOARD_SIZE/100-1))
+                continue;
+
+
+            Hole *hole = new Hole(x*100+100, y*100+100, 100);
             holes.push_back(hole);
         }
 
@@ -61,9 +77,10 @@ public:
             y = rand()%19;
 
 
-            LifeToken *GetL = new LifeToken(x*100+75, y*100+75);
+            LifeToken *GetL = new LifeToken(x*100+100, y*100+100);
             lifes.push_back(GetL);
         }
+        f = new FinishPoint(BOARD_SIZE-75,BOARD_SIZE-75);
     }
     ~Board(){
         for(Hole* v : holes){
@@ -80,6 +97,7 @@ public:
 private:
     std::vector<Hole*> holes;
     std::vector<LifeToken*> lifes;
+    FinishPoint* f;
 };
 
 

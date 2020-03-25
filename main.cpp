@@ -24,8 +24,6 @@ static void on_display(void);
 static void on_keyboard(unsigned char key, int x, int y);
 static void on_reshape(int width, int height);
 void output(char *string);
-//void drawText(const char *text, int length, int x, int y);
-//static void on_keyReleased(unsigned char key , int x , int y);
 static void on_timer(int value);
 
 //funkcije
@@ -109,22 +107,26 @@ static void on_keyboard(unsigned char key, int x, int y){
             break;
         case 'W':
         case 'w':
-            MarbleBall::getInstance()->move(FWD);
+            if(MarbleBall::getInstance()->death==0)
+                MarbleBall::getInstance()->move(FWD);
             game_start = 1;
             break;
         case 'A':
         case 'a':
-            MarbleBall::getInstance()->move(LEFT);
+            if(MarbleBall::getInstance()->death==0)
+                MarbleBall::getInstance()->move(LEFT);
             game_start = 1;
             break;
         case 'S':
         case 's':
-            MarbleBall::getInstance()->move(BACK);
+            if(MarbleBall::getInstance()->death==0)
+                MarbleBall::getInstance()->move(BACK);
             game_start = 1;
             break;
         case 'D':
         case 'd':
-            MarbleBall::getInstance()->move(RIGHT);
+            if(MarbleBall::getInstance()->death==0)
+                MarbleBall::getInstance()->move(RIGHT);
             game_start = 1;
             break;
         case 'R':
@@ -148,7 +150,7 @@ static void on_timer(int value)
     //tajmer funkcija
     if(value == TIMER_ID){
         MarbleBall::getInstance()->life--;
-        std::cout << MarbleBall::getInstance()->life<< std::endl;
+        //std::cout << MarbleBall::getInstance()->life<< std::endl;
         if(MarbleBall::getInstance()->life == 0){
             //TODO game endi
         }
@@ -158,7 +160,6 @@ static void on_timer(int value)
             glutTimerFunc(TIME_INTERVAL, on_timer, TIMER_ID);
         }
     }
-
 
     if(value == TIMER_LIFE){
             if(life_animation < 360){
@@ -179,29 +180,12 @@ static void on_display(void)
 
     /* Pozicija svetla (u pitanju je direkcionalno svetlo). */
     GLfloat light_position[] = { 0, 0, 2000, 0 };
-
     /* Ambijentalna boja svetla. */
     GLfloat light_ambient[] = { 0.0, 0.0, 0.0, 1 };
-
     /* Difuzna boja svetla. */
     GLfloat light_diffuse[] = { 0.7, 0.7, 0.7, 1 };
-
     /* Spekularna boja svetla. */
     GLfloat light_specular[] = { 0.9, 0.9, 0.9, 1 };
-
-    /* Koeficijenti ambijentalne refleksije materijala. */
-    GLfloat ambient_coeffs[] = { 1.0, 0.1, 0.1, 1 };
-
-    /* Koeficijenti difuzne refleksije materijala. */
-    GLfloat diffuse_coeffs[] = { 0.0, 0.0, 0.0, 1 };
-
-    /* Koeficijenti spekularne refleksije materijala. */
-    GLfloat specular_coeffs[] = { 1, 1, 1, 1 };
-
-    /* Koeficijent glatkosti materijala. */
-    GLfloat shininess = 20;
-
-
 
     /* Brise se prethodni sadrzaj 'prozora'. */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -218,12 +202,6 @@ static void on_display(void)
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-
-    /* Podesavaju se parametri materijala. */
-    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, specular_coeffs);
-    glMaterialf(GL_FRONT, GL_SHININESS, shininess);
 
 
     glShadeModel(GL_SMOOTH);
@@ -245,10 +223,7 @@ static void on_display(void)
     sprintf(life_numb, "%d", MarbleBall::getInstance()->life);
     strcat(str_life, life_numb);
 
-
-    // glDisable(GL_LIGHTING);
-	 	output(str_life);
-    // glEnable(GL_LIGHTING);
+	output(str_life);
 
 
 

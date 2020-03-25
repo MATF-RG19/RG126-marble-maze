@@ -5,7 +5,9 @@
 #define PI 3.14f
 extern int life_animation;
 #define LIFE_SIZE 75
+#define EPSILON 0.01
 
+void set_normal_and_vertex(float u, float v);
 
 void Board::draw(){
     glPushMatrix();
@@ -23,12 +25,13 @@ void Board::draw(){
         g->draw();
     }
 
+    f->draw();
 }
 
 void Hole::draw(){
     float ugao =0;
     glPushMatrix();
-        glColor3f(0.5,0,0.5);
+        glColor3f(0,0,0);
         glBegin(GL_POLYGON);
         glNormal3f(0,0,1);
         while(ugao < 2*PI+0.01){
@@ -37,6 +40,35 @@ void Hole::draw(){
         }
         glEnd();
     glPopMatrix();
+
+}
+
+void FinishPoint::draw(){
+std::cout << "/* message */" << '\n';
+
+    float u, v;
+
+glPushMatrix();
+
+glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA,   GL_DST_ALPHA);
+    //GL_SRC_COLOR
+    //GL_DST_ALPHA
+    glColor4f(0,0.7,0.1,0.5);
+glTranslatef(x,y,0);
+glScaled(75,75,200);
+glRotatef(90,1,0,0);
+for (u = 0; u < PI; u += PI / 20) {
+    glBegin(GL_TRIANGLE_STRIP);
+    for (v = 0; v <= PI*2 + EPSILON; v += PI / 20) {
+        set_normal_and_vertex(u, v);
+        set_normal_and_vertex(u + PI / 20, v);
+    }
+    glEnd();
+}
+glDisable(GL_BLEND);
+glPopMatrix();
+
 
 }
 
@@ -100,8 +132,6 @@ void Board::lifeMarbleCollision(){
             MarbleBall::getInstance()->life += 20;
             lifes.erase(std::cbegin(lifes)+i);
         }
-
-
     }
 }
 
@@ -109,10 +139,32 @@ void Board::lifeMarbleCollision(){
 void Board::holeMarbleCollision(){
 
     for(Hole* h : holes){
-        if(abs(h->x - MarbleBall::getInstance()->getX())<MARBLE_SIZE/2.1 &&
-           abs(h->y - MarbleBall::getInstance()->getY())<MARBLE_SIZE/2.1
-        ){
+        if(
+            sqrt(
+            pow(h->x - MarbleBall::getInstance()->getX(),2) +
+            pow(h->y - MarbleBall::getInstance()->getY(),2)
+        ) < 50)
+        {
              MarbleBall::getInstance()->life = 0;
+             MarbleBall::getInstance()->death = 1;
+             MarbleBall::getInstance()->fallInHole(MarbleBall::getInstance()->getX() - h->x,
+                                    MarbleBall::getInstance()->getY() - h->y);
+
+
+
         }
     }
+}
+
+void set_normal_and_vertex(float u, float v){
+glNormal3f(
+        sin(v),
+        0,
+        cos(v)
+        );
+glVertex3f(
+        sin(v),
+        u,
+        cos(v)
+        );
 }

@@ -46,13 +46,21 @@ public:
         v_y = 0;
         v_z = 0;
         life = 100;
+        death = 0;
     }
+    void marbleFall();
+    // funcija prima za koliko treba da se
+    //promene x i y kordinate da bi kliker dosao do sredine rupe
+
+    void fallInHole(double distanceX, double distanceY);
+    int death;
 
 private:
     static MarbleBall *instance;
     explicit MarbleBall(double x = 0, double y = 0, double z = 0, int life = 100)
       : life(life), x(x), y(y), z(z)
     {
+        death = 0;
         v_x = 0;
         v_y = 0;
         v_z = 0;
