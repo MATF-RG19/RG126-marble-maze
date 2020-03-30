@@ -10,38 +10,42 @@
 
 #define TIME_INTERVAL 500
 #define TIME_INTERVAL_LIFE 20
+#define TIME_INTERVAL_MOVE 20
 #define TIMER_ID 1
 #define TIMER_LIFE 2
+#define TIMER_MOVE 3
 #define LIFE_ANIMATION_MAX 2*360
 
 static int gravity_on = 0;
 static int game_start = 0;
 int life_animation = 0;
 
+int left=0;
+int right=0;
+int up=0;
+int down=0;
+
 
 /* Deklaracije callback funkcija. */
 static void on_display(void);
 static void on_keyboard(unsigned char key, int x, int y);
 static void on_reshape(int width, int height);
+static void on_keyReleased(unsigned char key,int x, int y);
 void output(char *string);
 static void on_timer(int value);
 
 //funkcije
-void marble(double x, double y, double z);
-void plain();
 void camera();
-void end();
 
-void move(int direction);
+
+
 
 MarbleBall* MarbleBall::instance = 0;
 Board* board;
 
 static int window_width = 1500, window_height = 700;
 
-float x=0;
-float y=0;
-float speed=1;
+
 
 
 int main(int argc, char **argv)
@@ -63,17 +67,18 @@ int main(int argc, char **argv)
     glutCreateWindow(argv[0]);
 
 
-
+    glutIgnoreKeyRepeat(true);
     /* Registruju se callback funkcije. */
     glutDisplayFunc(on_display);
     glutKeyboardFunc(on_keyboard);
     glutReshapeFunc(on_reshape);
-    //glutKeyboardUpFunc(on_keyReleased);
+    glutKeyboardUpFunc(on_keyReleased);
 
     /* Obavlja se OpenGL inicijalizacija. */
     glClearColor(0.75, 0.75, 0.75, 0);
     glEnable(GL_DEPTH_TEST);
 
+    glutTimerFunc(TIME_INTERVAL_MOVE, on_timer, TIMER_MOVE);
     glutTimerFunc(TIME_INTERVAL_LIFE, on_timer, TIMER_LIFE);
     /* Program ulazi u glavnu petlju. */
     glutMainLoop();
@@ -107,27 +112,31 @@ static void on_keyboard(unsigned char key, int x, int y){
             break;
         case 'W':
         case 'w':
-            if(MarbleBall::getInstance()->death==0)
-                MarbleBall::getInstance()->move(FWD);
-            game_start = 1;
+//             if(MarbleBall::getInstance()->death==0)
+//                 MarbleBall::getInstance()->move(FWD);
+//             game_start = 1;
+            up=1;
             break;
         case 'A':
         case 'a':
-            if(MarbleBall::getInstance()->death==0)
-                MarbleBall::getInstance()->move(LEFT);
-            game_start = 1;
+//             if(MarbleBall::getInstance()->death==0)
+//                 MarbleBall::getInstance()->move(LEFT);
+//             game_start = 1;
+            left=1;
             break;
         case 'S':
         case 's':
-            if(MarbleBall::getInstance()->death==0)
-                MarbleBall::getInstance()->move(BACK);
-            game_start = 1;
+//             if(MarbleBall::getInstance()->death==0)
+//                 MarbleBall::getInstance()->move(BACK);
+//             game_start = 1;
+            down=1;
             break;
         case 'D':
         case 'd':
-            if(MarbleBall::getInstance()->death==0)
-                MarbleBall::getInstance()->move(RIGHT);
-            game_start = 1;
+//             if(MarbleBall::getInstance()->death==0)
+//                 MarbleBall::getInstance()->move(RIGHT);
+//             game_start = 1;
+            right=1;
             break;
         case 'R':
         case 'r':
@@ -137,12 +146,30 @@ static void on_keyboard(unsigned char key, int x, int y){
                 break;
             }
     }
-
-
-
-    glutPostRedisplay();
 }
 
+
+static void on_keyReleased(unsigned char key, int x, int y){
+
+    switch(key){
+        case 'W':
+        case 'w':
+            up=0;
+            break;
+        case 'A':
+        case 'a':
+            left=0;
+            break;
+        case 'S':
+        case 's':
+            down=0;
+            break;
+        case 'D':
+        case 'd':
+            right=0;
+            break;
+    }
+}
 
 
 static void on_timer(int value)
@@ -151,8 +178,9 @@ static void on_timer(int value)
     if(value == TIMER_ID){
         MarbleBall::getInstance()->life--;
         //std::cout << MarbleBall::getInstance()->life<< std::endl;
-        if(MarbleBall::getInstance()->life == 0){
+        if(MarbleBall::getInstance()->life <= 0){
             //TODO game endi
+            MarbleBall::getInstance()->death = 1;
         }
         glutPostRedisplay();
         if(game_start){
@@ -170,6 +198,15 @@ static void on_timer(int value)
             }
             glutPostRedisplay();
             glutTimerFunc(TIME_INTERVAL_LIFE, on_timer, TIMER_LIFE);
+    }
+
+    if(value==TIMER_MOVE){
+
+        if(MarbleBall::getInstance()->death==0 && MarbleBall::getInstance()->win==0)
+            MarbleBall::getInstance()->move(left,right,up,down);
+
+        glutPostRedisplay();
+        glutTimerFunc(TIME_INTERVAL_MOVE,on_timer,TIMER_MOVE);
     }
 
 
@@ -210,6 +247,7 @@ static void on_display(void)
     MarbleBall::getInstance()->redraw();
     board->lifeMarbleCollision();
     board->holeMarbleCollision();
+    board->finishMarbleCollision();
 
     glDisable(GL_LIGHTING);
     glDisable(GL_LIGHT0);

@@ -9,10 +9,8 @@
 void material(int i);
 
 void MarbleBall::redraw(){
-    //std::cout << "x: "<< x << " z: " << z << std::endl;
-
     glPushMatrix();
-    if(x < 0 || x > BOARD_SIZE || y< 0 || y> BOARD_SIZE){
+    if(x < 0 || x > BOARD_SIZE || y < 0 || y > BOARD_SIZE){
         marbleFall();
     }
 
@@ -59,36 +57,139 @@ void MarbleBall::redraw(){
 
 
 
-void MarbleBall::move(int direction){
-    switch(direction) {
-        case FWD:
-            v_x = 0;
-            v_y = (v_y < 0) ? 0 : v_y;
-            v_y += ACCELERATION;
-            v_y = v_y >= MAX_SPEED ? MAX_SPEED : v_y;
-            y += v_y;
-            break;
-        case BACK:
-            v_x = 0;
-            v_y = (v_y > 0) ? 0 :  v_y;
-            v_y -= ACCELERATION;
-            v_y = v_y <= -MAX_SPEED ? -MAX_SPEED : v_y;
-            y += v_y;
-            break;
-        case RIGHT:
-            v_y = 0;
-            v_x = (v_x < 0) ? 0 : v_x;
-            v_x += ACCELERATION;
-            v_x = v_x >= MAX_SPEED ? MAX_SPEED : v_x;
-            x += v_x;
-            break;
-        case LEFT:
-            v_y = 0;
-            v_x = (v_x > 0) ? 0 : v_x;
-            v_x -= ACCELERATION;
-            v_x = v_x <= -MAX_SPEED ? -MAX_SPEED : v_x;
-            x += v_x;
-            break;
+void MarbleBall::move(int left, int right, int up, int down){
+     if(right){
+        v_x+=ACCELERATION;
+        if(v_x>=MAX_SPEED)
+            v_x=MAX_SPEED;
+    }
+    if(right == 0 && v_x>0){
+        v_x-=BRAKING;
+        if(v_x<=0){
+            v_x=0;
+        }
+    }
+    if(left){
+        v_x-=ACCELERATION;
+        if(v_x<=-MAX_SPEED)
+            v_x=-MAX_SPEED;
+    }
+    if(left == 0 && v_x<0){
+        v_x+=BRAKING;
+        if(v_x>=0){
+            v_x=0;
+        }
+    }
+    if(up){
+        v_y+=ACCELERATION;
+        if(v_y>=MAX_SPEED)
+            v_y=MAX_SPEED;
+    }
+
+    if(up == 0 && v_y>0){
+        v_y-=BRAKING;
+        if(v_y<=0){
+            v_y=0;
+        }
+    }
+
+    if(down){
+        v_y-=ACCELERATION;
+        if(v_y<=-MAX_SPEED)
+            v_y=-MAX_SPEED;
+    }
+
+    if(down == 0 && v_y<0){
+        v_y+=BRAKING;
+        if(v_y>=0){
+            v_y=0;
+        }
+    }
+    x+=v_x;
+    y+=v_y;
+}
+
+
+void MarbleBall::marbleFall(){
+
+    if(x < 0){
+        if(x  > -99){
+            x-= 2;
+            z =  sqrt(abs(100*100 - x*x))-100;
+        }
+        else {
+            v_z+=0.3;
+            z -= v_z;
+        }
+    }
+    if(x > BOARD_SIZE ){
+        if( x < BOARD_SIZE+99){
+            x+= 2;
+            z =  sqrt(abs(100*100 - (x-BOARD_SIZE)*(x-BOARD_SIZE)))-100;
+        }
+        else {
+            v_z+=0.3;
+            z -= v_z;
+        }
+    }
+
+    if(y < 0){
+        if( y > -99){
+            y-= 2;
+            z =  sqrt(abs(100*100 - y*y))-100;
+        }
+        else {
+            v_z+=0.3;
+            z -= v_z;
+        }
+
+    }
+    if(y > BOARD_SIZE ){
+        if( y < BOARD_SIZE+99){
+            y+= 2;
+            z =  sqrt(abs(100*100 - (y-BOARD_SIZE)*(y-BOARD_SIZE)))-100;
+        }
+        else{
+            v_z+=0.3;
+            z -= v_z;
+        }
+    }
+    death = 1;
+}
+
+void MarbleBall::fallInHole(double distanceX, double distanceY){
+    double y1;
+    double x1;
+    if(-distanceY < distanceX && distanceX < distanceY){
+        y1=y;
+        y -=1;
+        x += (y-y1)*(distanceX/distanceY);
+    }
+    if(distanceY < distanceX && distanceX < -distanceY){
+        y1=y;
+        y += 1;
+        x += (y-y1)*(distanceX/distanceY);
+    }
+    if(distanceX < distanceY && distanceY < -distanceX){
+        x1=x;
+        x +=1;
+        y += (x-x1)*(distanceY/distanceX);
+    }
+    if(-distanceX < distanceY && distanceY < distanceX){
+        x1=x;
+        x -= 1;
+        y += (x-x1)*(distanceY/distanceX);
+    }
+    v_z+=0.1;
+    z -= v_z;
+}
+
+void MarbleBall::marbleWin(){
+    v_z+=0.1;
+    z += v_z;
+    win = 1;
+    if(z > 1700) {
+        MarbleBall::getInstance()->reset();
     }
 }
 
@@ -163,80 +264,4 @@ void material(int i)
 	glMaterialfv(GL_FRONT,GL_AMBIENT,mat_ambient);
 	glMaterialfv(GL_FRONT,GL_DIFFUSE,mat_diffuse);
 	glMaterialfv(GL_FRONT,GL_SPECULAR,mat_specular);
-}
-
-void MarbleBall::marbleFall(){
-    if(x < 0){
-        if(x  > -99){
-            x-= 2;
-            z =  sqrt(100*100 - x*x)-100;
-        }
-        else {
-            v_z+=0.3;
-            z -= v_z;
-        }
-    }
-    if(x > BOARD_SIZE ){
-        if( x < BOARD_SIZE+99){
-            x+= 2;
-            z =  sqrt(100*100 - (x-BOARD_SIZE)*(x-BOARD_SIZE))-100;
-        }
-        else {
-            v_z+=0.3;
-            z -= v_z;
-        }
-    }
-
-    if(y < 0){
-        if( y > -99){
-            y-= 2;
-            z =  sqrt(100*100 - y*y)-100;
-        }
-        else {
-            v_z+=0.3;
-            z -= v_z;
-        }
-
-    }
-    if(y > BOARD_SIZE ){
-        if( y < BOARD_SIZE+99){
-            y+= 2;
-            z =  sqrt(100*100 - (y-BOARD_SIZE)*(y-BOARD_SIZE))-100;
-        }
-        else{
-            v_z+=0.3;
-            z -= v_z;
-        }
-    }
-    death = 1;
-
-}
-void MarbleBall::fallInHole(double distanceX, double distanceY){
-    std::cout << "x:" << x << " y:"<< y << '\n';
-    double y1;
-    double x1;
-    if(-distanceY < distanceX && distanceX < distanceY){
-        y1=y;
-        y -=1;
-        x += (y-y1)*(distanceX/distanceY);
-    }
-    if(distanceY < distanceX && distanceX < -distanceY){
-        y1=y;
-        y += 1;
-        x += (y-y1)*(distanceX/distanceY);
-    }
-    if(distanceX < distanceY && distanceY < -distanceX){
-        x1=x;
-        x +=1;
-        y += (x-x1)*(distanceY/distanceX);
-    }
-    if(-distanceX < distanceY && distanceY < distanceX){
-        x1=x;
-        x -= 1;
-        y += (x-x1)*(distanceY/distanceX);
-    }
-    std::cout << "x:" << x << " y:"<< y << '\n';
-    std::cout << "dx:" << distanceX << " dy:"<< distanceY << '\n';
-    v_z+=0.1;
-    z -= v_z;
 }

@@ -44,37 +44,31 @@ void Hole::draw(){
 }
 
 void FinishPoint::draw(){
-std::cout << "/* message */" << '\n';
-
     float u, v;
 
-glPushMatrix();
+    glPushMatrix();
 
-glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA,   GL_DST_ALPHA);
-    //GL_SRC_COLOR
-    //GL_DST_ALPHA
-    glColor4f(0,0.7,0.1,0.5);
-glTranslatef(x,y,0);
-glScaled(75,75,200);
-glRotatef(90,1,0,0);
-for (u = 0; u < PI; u += PI / 20) {
-    glBegin(GL_TRIANGLE_STRIP);
-    for (v = 0; v <= PI*2 + EPSILON; v += PI / 20) {
-        set_normal_and_vertex(u, v);
-        set_normal_and_vertex(u + PI / 20, v);
+    glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA,   GL_DST_ALPHA);
+        glColor4f(0,0.7,0.1,0.5);
+    glTranslatef(x,y,0);
+    glScaled(75,75,700);
+    glRotatef(90,1,0,0);
+    for (u = 0; u < PI; u += PI / 20) {
+        glBegin(GL_TRIANGLE_STRIP);
+        for (v = 0; v <= PI*2 + EPSILON; v += PI / 20) {
+            set_normal_and_vertex(u, v);
+            set_normal_and_vertex(u + PI / 20, v);
+        }
+        glEnd();
     }
-    glEnd();
-}
-glDisable(GL_BLEND);
-glPopMatrix();
-
+    glDisable(GL_BLEND);
+    glPopMatrix();
 
 }
 
 void LifeToken::draw(){
     float ugao =0;
-    //std::cout << life_animation << "*" << std::endl;
     glPushMatrix();
         glColor3f(0.1,0.5,0.1);
 
@@ -149,10 +143,16 @@ void Board::holeMarbleCollision(){
              MarbleBall::getInstance()->death = 1;
              MarbleBall::getInstance()->fallInHole(MarbleBall::getInstance()->getX() - h->x,
                                     MarbleBall::getInstance()->getY() - h->y);
-
-
-
         }
+    }
+}
+
+void Board::finishMarbleCollision(){
+    if( sqrt(
+            pow(f->x - MarbleBall::getInstance()->getX(),2) +
+            pow(f->y - MarbleBall::getInstance()->getY(),2)
+        ) < 25) {
+     MarbleBall::getInstance()->marbleWin();
     }
 }
 
@@ -166,5 +166,15 @@ glVertex3f(
         sin(v),
         u,
         cos(v)
-        );
+    );
+}
+
+bool Board::freeHolePosition(int x, int y){
+    for(Hole* h : holes){
+        if( h->x== x && h->y == y){
+            return false;
+        }
+    }
+
+    return true;
 }

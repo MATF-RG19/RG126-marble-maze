@@ -4,12 +4,9 @@
 #include <GL/glut.h>
 #include <stdio.h>
 #include <iostream>
-#define FWD 1
-#define LEFT 3
-#define BACK 2
-#define RIGHT 4
-#define ACCELERATION 5
-#define MAX_SPEED 100
+#define ACCELERATION 0.4
+#define BRAKING 0.5
+#define MAX_SPEED 20
 #define MARBLE_SIZE 100
 
 class MarbleBall
@@ -26,7 +23,7 @@ public:
     ~MarbleBall();
     void redraw();
     //void reset();
-    void move(int direction);
+    void move(int left, int right, int up, int down);
 
     double getX(){
         return x;
@@ -47,13 +44,13 @@ public:
         v_z = 0;
         life = 100;
         death = 0;
+        win = 0;
     }
     void marbleFall();
-    // funcija prima za koliko treba da se
-    //promene x i y kordinate da bi kliker dosao do sredine rupe
-
     void fallInHole(double distanceX, double distanceY);
+    void marbleWin();
     int death;
+    int win;
 
 private:
     static MarbleBall *instance;
@@ -61,6 +58,7 @@ private:
       : life(life), x(x), y(y), z(z)
     {
         death = 0;
+        win = 0;
         v_x = 0;
         v_y = 0;
         v_z = 0;
