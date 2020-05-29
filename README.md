@@ -15,8 +15,12 @@ dodatni poeni se ostvaruju skupljanjem tokena.
 | **a**     | kretanje levo   |
 | **s**     | kretanje nazad  |
 | **d**     | kretanje nazad  |
+| **Esc**   | Izlazak iz igre  |
 
 Takodje moguce je kretanje dijagonalno kombinacijom dva tastera za kretanje
+
+### :books: Potrebne biblioteke
+![glut](https://img.shields.io/badge/lib-glut-green.svg)
 
 ### :wrench: Uputstvo za instalaciju i pokretanje: 
 ```shell
