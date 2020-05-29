@@ -9,12 +9,34 @@ extern int life_animation;
 
 void set_normal_and_vertex(float u, float v);
 
-void Board::draw(){
+void Board::draw(GLuint names[1]){
     glPushMatrix();
-        glColor3f(0.5,0.5,0.5);
-        glTranslatef(BOARD_SIZE/2,BOARD_SIZE/2,0);
-        glScaled(BOARD_SIZE,BOARD_SIZE,1);
-        glutSolidCube(1);
+        glBindTexture(GL_TEXTURE_2D, names[0]);
+    
+        //glColor3f(0.5,0.5,0.5);
+//         glTranslatef(BOARD_SIZE/2,BOARD_SIZE/2,0);
+//         glScaled(BOARD_SIZE,BOARD_SIZE,1);
+//         glutSolidCube(1);
+        
+        glBegin(GL_QUADS);
+            glNormal3f(0, 0, 1);
+
+            glTexCoord2f(0, 0);
+            glVertex3f(0, 0, 0);
+
+            glTexCoord2f(1, 0);
+            glVertex3f(BOARD_SIZE, 0, 0);
+
+            glTexCoord2f(1, 1);
+            glVertex3f(BOARD_SIZE, BOARD_SIZE, 0);
+
+            glTexCoord2f(0, 1);
+            glVertex3f(0, BOARD_SIZE, 0);
+        glEnd();
+        
+        
+        
+        glBindTexture(GL_TEXTURE_2D, 0);
     glPopMatrix();
 
     for(Hole* v:holes){
@@ -31,7 +53,7 @@ void Board::draw(){
 void Hole::draw(){
     float ugao =0;
     glPushMatrix();
-        glColor3f(0,0,0);
+        glColor3f(0.4,0.1,0.4);
         glBegin(GL_POLYGON);
         glNormal3f(0,0,1);
         while(ugao < 2*PI+0.01){

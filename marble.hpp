@@ -9,6 +9,7 @@
 #define MAX_SPEED 20
 #define MARBLE_SIZE 100
 
+/*klasa za kliker*/
 class MarbleBall
 {
 public:
@@ -22,7 +23,6 @@ public:
 
     ~MarbleBall();
     void redraw();
-    //void reset();
     void move(int left, int right, int up, int down);
 
     double getX(){
@@ -42,19 +42,21 @@ public:
         v_x = 0;
         v_y = 0;
         v_z = 0;
-        life = 100;
+        life = 50;
         death = 0;
         win = 0;
+        end = 0;
     }
     void marbleFall();
     void fallInHole(double distanceX, double distanceY);
     void marbleWin();
     int death;
     int win;
+    int end;
 
 private:
     static MarbleBall *instance;
-    explicit MarbleBall(double x = 0, double y = 0, double z = 0, int life = 100)
+    explicit MarbleBall(double x = 0, double y = 0, double z = 0, int life = 50)
       : life(life), x(x), y(y), z(z)
     {
         death = 0;
@@ -62,6 +64,7 @@ private:
         v_x = 0;
         v_y = 0;
         v_z = 0;
+        end=0;
     }
     double x;
     double y;

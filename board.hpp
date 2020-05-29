@@ -17,7 +17,7 @@ public:
     : x(x), y(y), size(size)
     {
     }
-    ~Hole();
+    ~Hole(){};
     void draw();
 
     double x;
@@ -46,14 +46,15 @@ public:
     : x(x), y(y)
     {
     }
-    ~LifeToken();
+    ~LifeToken(){};
     void draw();
 
     double x;
     double y;
 };
 
-
+/*klasa koja prestavlja podlogu za kretanje klikera na kojoj se nalaze
+rupe i tokeni za zivot */
 class Board{
 public:
     Board(){
@@ -66,7 +67,7 @@ public:
             x = rand()%(BOARD_SIZE/100-1);
             y = rand()%(BOARD_SIZE/100-1);
 
-            if(x == (BOARD_SIZE/100-1) &&  y == (BOARD_SIZE/100-1))
+            if(x >= BOARD_SIZE-75 &&  y >= BOARD_SIZE-75)
                 continue;
 
             if(freeHolePosition(x,y)){
@@ -106,7 +107,7 @@ public:
             delete lt;
         }
     };
-    void draw();
+    void draw(GLuint names[1]);
     void lifeMarbleCollision(); //proverava da li je kliker pokupio zivot
     void holeMarbleCollision(); //akcija je kliker upao u rupu
     void finishMarbleCollision(); //akcija ako je kliker stigao do cilja

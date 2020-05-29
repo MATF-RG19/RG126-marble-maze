@@ -1,9 +1,9 @@
 PROGRAM   = Marble_maze
-CC        = g++
+CC        = g++ -std=c++17
 CFLAGS    = -g -Wall
 LDFLAGS   = -lGL -lGLU -lglut
 
-$(PROGRAM): main.o marble.o board.o
+$(PROGRAM): main.o marble.o board.o image.o
 	$(CC) -o $(PROGRAM) $^ $(LDFLAGS)
 
 main.o: main.cpp marble.hpp board.hpp
@@ -14,6 +14,9 @@ marble.o: marble.cpp marble.hpp
 
 board.o: board.cpp board.hpp
 		$(CC) -c $< $(CFLAGS) $(LDFLAGS)
+		
+image.o: image.c image.h
+		$(CC) -c $< $(LDFLAGS) $(CFLAGS)
 
 .PHONY: clean dist
 

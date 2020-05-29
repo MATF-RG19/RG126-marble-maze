@@ -14,7 +14,7 @@ void MarbleBall::redraw(){
         marbleFall();
     }
 
-
+        /*kada kliker dovoljo padne restartuje se igra*/
         if (z < -1000){
             reset();
         }
@@ -38,6 +38,11 @@ void MarbleBall::redraw(){
 
             glutSolidSphere((MARBLE_SIZE/2),100,100);
         glColor3f(0, 1, 0);
+        /* izlge klikera zavisi od trenutnog stanja zivota,
+         sto je vec broj zivota zeleni prsten na klikeru je deblji,
+         kada zivot dodje do 0 kliker je potpuno crn, 
+         a kada je preko 100 kliker je zelene boje.
+         Kada se zivot izgubi kliker postaje crvene boje*/
         double life_upper[] = {0,0,1,(double)life/2};
         double life_downer[] = {0,0,-1,(double)life/2};
         glClipPlane(GL_CLIP_PLANE1, life_upper);
@@ -56,7 +61,7 @@ void MarbleBall::redraw(){
 }
 
 
-
+/*brzina kretanja klikera nije konstantna vec zavisi od ubrzanja*/
 void MarbleBall::move(int left, int right, int up, int down){
      if(right){
         v_x+=ACCELERATION;
@@ -109,7 +114,7 @@ void MarbleBall::move(int left, int right, int up, int down){
     y+=v_y;
 }
 
-
+/*animacija pada kliera sa ivice*/
 void MarbleBall::marbleFall(){
 
     if(x < 0){
@@ -157,6 +162,7 @@ void MarbleBall::marbleFall(){
     death = 1;
 }
 
+/*animacija pada kliera u rupu*/
 void MarbleBall::fallInHole(double distanceX, double distanceY){
     double y1;
     double x1;
@@ -188,15 +194,13 @@ void MarbleBall::marbleWin(){
     v_z+=0.1;
     z += v_z;
     win = 1;
-    if(z > 1700) {
-        MarbleBall::getInstance()->reset();
+    if(z > 1000) {
+        end=1;
     }
 }
-
-
+/*Zadati materijali za kliker */
 void material(int i)
  {
-
     GLfloat mat_ambient[4];
     GLfloat mat_diffuse[4];
     GLfloat mat_specular[4];
