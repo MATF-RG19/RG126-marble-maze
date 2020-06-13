@@ -247,7 +247,6 @@ void MarbleBall::marbleWin(){
 }
 
 void MarbleBall::marbleNotWin(){
-    printf("%d\n",goingUp);
     moving = 0;
     if(goingUp == 1){
         if(z < life*10) {
