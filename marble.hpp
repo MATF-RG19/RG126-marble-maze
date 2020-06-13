@@ -49,10 +49,17 @@ public:
     }
     void marbleFall();
     void fallInHole(double distanceX, double distanceY);
+    void fallInTeleport(double distanceX, double distanceY);
     void marbleWin();
+    void marbleDeathAnimation();
+    void marbleNotWin();
+    void malbreTeleport(int newX, int newY);
+
     int death;
     int win;
     int end;
+    int moving;
+    int goingUp;
 
 private:
     static MarbleBall *instance;
@@ -64,6 +71,8 @@ private:
         v_x = 0;
         v_y = 0;
         v_z = 0;
+        moving = 1;
+        goingUp = 1;
         end=0;
     }
     double x;

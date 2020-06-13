@@ -43,6 +43,9 @@ static void on_timer(int value);
 void camera();
 void endScreen();
 
+int holdOn = 0;
+int i = 0;
+
 static void texture_initialize();
 
 
@@ -85,7 +88,7 @@ int main(int argc, char **argv)
     /* Obavlja se OpenGL inicijalizacija. */
      glClearColor(0.1, 0.1, 0.2, 0);
     glEnable(GL_DEPTH_TEST);
-    
+
     texture_initialize();
 
     glutTimerFunc(TIME_INTERVAL_MOVE, on_timer, TIMER_MOVE);
@@ -126,7 +129,7 @@ static void texture_initialize(){
                  GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
 
     image_read(image, FILENAME1);
-    
+
     glBindTexture(GL_TEXTURE_2D, names[1]);
     glTexParameteri(GL_TEXTURE_2D,
                     GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -137,8 +140,8 @@ static void texture_initialize(){
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
                  image->width, image->height, 0,
                  GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
-    
-    
+
+
     /* Iskljucujemo aktivnu teksturu */
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -225,9 +228,18 @@ static void on_timer(int value)
 {
     //tajmer funkcija
     if(value == TIMER_ID){
-        MarbleBall::getInstance()->life--;
-        if(MarbleBall::getInstance()->life <= 0){
+        if(MarbleBall::getInstance()->life == 0){
             MarbleBall::getInstance()->death = 1;
+        }
+        else{
+            MarbleBall::getInstance()->life--;
+        }
+        if(holdOn==1){
+            i++;
+            if(i==14){
+                holdOn=0;
+                i=0;
+            }
         }
         glutPostRedisplay();
         if(game_start){
@@ -248,7 +260,8 @@ static void on_timer(int value)
 
     if(value==TIMER_MOVE){
         //obogucavanje kretanja samo ako nije kraj igre
-        if(MarbleBall::getInstance()->death==0 && MarbleBall::getInstance()->win==0)
+        if(MarbleBall::getInstance()->death==0 && MarbleBall::getInstance()->win==0
+            && MarbleBall::getInstance()->moving == 1)
             MarbleBall::getInstance()->move(left,right,up,down);
 
         glutPostRedisplay();
@@ -275,11 +288,11 @@ static void on_display(void)
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    
-    if(MarbleBall::getInstance()->end==1){
+
+    if(MarbleBall::getInstance()->end==1 ){
         endScreen();
     }else{
-    
+
         camera();
 
 
@@ -299,13 +312,14 @@ static void on_display(void)
         board->lifeMarbleCollision();
         board->holeMarbleCollision();
         board->finishMarbleCollision();
+        board->teleportMarbleCollision();
 
         glDisable(GL_LIGHTING);
         glDisable(GL_LIGHT0);
 
         board->draw(names);
 
-        
+
         /*ispis poena */
         char life_numb[10];
         char str_life[] = "Life: ";
@@ -323,7 +337,7 @@ static void on_display(void)
 /*postavljanje teksture za kraj igre*/
 void endScreen(){
     gluLookAt(0,0,-1,0,0,0,1,0,0);
-    
+
      glPushMatrix();
         glBindTexture(GL_TEXTURE_2D, names[1]);
 
@@ -342,9 +356,9 @@ void endScreen(){
             glTexCoord2f(0, 1);
             glVertex3f(1, -1, 0);
         glEnd();
-        
-        
-        
+
+
+
         glBindTexture(GL_TEXTURE_2D, 0);
     glPopMatrix();
 }

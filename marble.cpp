@@ -7,6 +7,7 @@
 #define MARBLEIN_DEATH 3
 
 void material(int i);
+extern int holdOn;
 
 void MarbleBall::redraw(){
     glPushMatrix();
@@ -40,7 +41,7 @@ void MarbleBall::redraw(){
         glColor3f(0, 1, 0);
         /* izlge klikera zavisi od trenutnog stanja zivota,
          sto je vec broj zivota zeleni prsten na klikeru je deblji,
-         kada zivot dodje do 0 kliker je potpuno crn, 
+         kada zivot dodje do 0 kliker je potpuno crn,
          a kada je preko 100 kliker je zelene boje.
          Kada se zivot izgubi kliker postaje crvene boje*/
         double life_upper[] = {0,0,1,(double)life/2};
@@ -166,6 +167,9 @@ void MarbleBall::marbleFall(){
 void MarbleBall::fallInHole(double distanceX, double distanceY){
     double y1;
     double x1;
+
+    v_x = 0;
+    v_y = 0;
     if(-distanceY < distanceX && distanceX < distanceY){
         y1=y;
         y -=1;
@@ -190,12 +194,99 @@ void MarbleBall::fallInHole(double distanceX, double distanceY){
     z -= v_z;
 }
 
+
+void MarbleBall::fallInTeleport(double distanceX, double distanceY){
+    double y1;
+    double x1;
+    if(holdOn == 0){
+        if(-distanceY < distanceX && distanceX < distanceY){
+            y1=y;
+            y -=1;
+            x += (y-y1)*(distanceX/distanceY);
+            v_z+=0.1;
+            z -= v_z;
+        }
+        if(distanceY < distanceX && distanceX < -distanceY){
+            y1=y;
+            y += 1;
+            x += (y-y1)*(distanceX/distanceY);
+            v_z+=0.1;
+            z -= v_z;
+        }
+        if(distanceX < distanceY && distanceY < -distanceX){
+            x1=x;
+            x +=1;
+            y += (x-x1)*(distanceY/distanceX);
+            v_z+=0.1;
+            z -= v_z;
+        }
+        if(-distanceX < distanceY && distanceY < distanceX){
+            x1=x;
+            x -= 1;
+            y += (x-x1)*(distanceY/distanceX);
+            v_z+=0.1;
+            z -= v_z;
+        }
+    }
+}
+
+
+
+
+
 void MarbleBall::marbleWin(){
     v_z+=0.1;
     z += v_z;
     win = 1;
     if(z > 1000) {
         end=1;
+    }
+}
+
+void MarbleBall::marbleNotWin(){
+    printf("%d\n",goingUp);
+    moving = 0;
+    if(goingUp == 1){
+        if(z < life*10) {
+            v_z+=0.1;
+            z += v_z;
+        }
+        else{
+            goingUp = -1;
+            holdOn = 1;
+        }
+    }
+
+    if(goingUp == -1){
+        if(z > 0) {
+            v_z-=0.1;
+            z += v_z;
+        }
+        else{
+            v_z = 0;
+            moving=1;
+            if(holdOn == 0)
+                goingUp = 1;
+
+        }
+    }
+}
+
+
+void MarbleBall::malbreTeleport(int newX, int newY){
+    if(holdOn == 0 ){
+        x = newX;
+        y = newY;
+        z = 0;
+    }
+    holdOn = 1;
+
+}
+
+void MarbleBall::marbleDeathAnimation(){
+    if(z >= -200){
+        v_z+=0.05;
+        z-=v_z;
     }
 }
 /*Zadati materijali za kliker */

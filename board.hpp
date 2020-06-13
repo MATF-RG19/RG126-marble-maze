@@ -53,6 +53,21 @@ public:
     double y;
 };
 
+class Teleport{
+public:
+    Teleport(double x, double y, double size)
+    : x(x), y(y), size(size)
+    {
+    }
+    ~Teleport(){};
+    void draw();
+
+    double x;
+    double y;
+    double size;
+
+};
+
 /*klasa koja prestavlja podlogu za kretanje klikera na kojoj se nalaze
 rupe i tokeni za zivot */
 class Board{
@@ -67,7 +82,7 @@ public:
             x = rand()%(BOARD_SIZE/100-1);
             y = rand()%(BOARD_SIZE/100-1);
 
-            if(x >= BOARD_SIZE-75 &&  y >= BOARD_SIZE-75)
+            if(x >= 18 &&  y >= 18)
                 continue;
 
             if(freeHolePosition(x,y)){
@@ -77,7 +92,10 @@ public:
             else {
                 i--;
             }
+
         }
+
+
 
         for(int i =0; i < LIFE_NUM; i++){
             x = rand()%19;
@@ -93,8 +111,30 @@ public:
             else{
                 i--;
             }
-
         }
+
+        for(int i =0; i < 2; i++){
+            x = rand()%19;
+            y = rand()%19;
+            if(x >= 18 &&  y >= 18){
+                continue;
+                i--;
+            }
+
+
+            x = x*100+100;
+            y = y*100+100;
+
+            if(freeHolePosition(x,y)){
+                Teleport *teleport = new Teleport(x, y, 100);
+                teleports.push_back(teleport);
+
+            }
+            else{
+                i--;
+            }
+        }
+
 
 
         f = new FinishPoint(BOARD_SIZE-75,BOARD_SIZE-75);
@@ -111,8 +151,11 @@ public:
     void lifeMarbleCollision(); //proverava da li je kliker pokupio zivot
     void holeMarbleCollision(); //akcija je kliker upao u rupu
     void finishMarbleCollision(); //akcija ako je kliker stigao do cilja
+    void teleportMarbleCollision();
     bool freeHolePosition(int x, int y);
+
 private:
+    std::vector<Teleport*> teleports;
     std::vector<Hole*> holes;
     std::vector<LifeToken*> lifes;
     FinishPoint* f;
