@@ -198,7 +198,10 @@ void MarbleBall::fallInHole(double distanceX, double distanceY){
 void MarbleBall::fallInTeleport(double distanceX, double distanceY){
     double y1;
     double x1;
+
     if(holdOn == 0){
+        v_x = 0;
+        v_y = 0;
         if(-distanceY < distanceX && distanceX < distanceY){
             y1=y;
             y -=1;
